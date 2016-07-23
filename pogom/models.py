@@ -4,7 +4,7 @@ import os
 
 import logging
 from peewee import Model, MySQLDatabase, InsertQuery, IntegerField,\
-                   CharField, FloatField, BooleanField, DateTimeField
+                   CharField, BooleanField, DateTimeField, DoubleField
 from datetime import datetime
 from datetime import timedelta
 from base64 import b64encode
@@ -48,9 +48,10 @@ class Pokemon(MySQLModel):
     encounter_id = CharField(primary_key=True)
     spawnpoint_id = CharField()
     pokemon_id = IntegerField()
-    latitude = FloatField()
-    longitude = FloatField()
+    latitude = DoubleField()
+    longitude = DoubleField()
     disappear_time = DateTimeField()
+    aprox_found_datetime = DateTimeField()
 
     @classmethod
     def get_active(cls):
@@ -70,8 +71,8 @@ class Pokemon(MySQLModel):
 class Pokestop(MySQLModel):
     pokestop_id = CharField(primary_key=True)
     enabled = BooleanField()
-    latitude = FloatField()
-    longitude = FloatField()
+    latitude = DoubleField()
+    longitude = DoubleField()
     last_modified = DateTimeField()
     lure_expiration = DateTimeField(null=True)
     active_pokemon_id = IntegerField(null=True)
@@ -88,14 +89,14 @@ class Gym(MySQLModel):
     guard_pokemon_id = IntegerField()
     gym_points = IntegerField()
     enabled = BooleanField()
-    latitude = FloatField()
-    longitude = FloatField()
+    latitude = DoubleField()
+    longitude = DoubleField()
     last_modified = DateTimeField()
 
 class ScannedLocation(MySQLModel):
     scanned_id = CharField(primary_key=True)
-    latitude = FloatField()
-    longitude = FloatField()
+    latitude = DoubleField()
+    longitude = DoubleField()
     last_modified = DateTimeField()
 
     @classmethod
@@ -130,7 +131,8 @@ def parse_map(map_dict, iteration_num, step, step_location):
                 'pokemon_id': p['pokemon_data']['pokemon_id'],
                 'latitude': p['latitude'],
                 'longitude': p['longitude'],
-                'disappear_time': d_t
+                'disappear_time': d_t,
+                'aprox_found_datetime': datetime.now()
             }
 
         if iteration_num > 0 or step > 50:

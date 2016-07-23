@@ -9,7 +9,6 @@ import uuid
 import os
 import json
 from datetime import datetime, timedelta
-import ConfigParser
 
 from . import config
 from exceptions import APIKeyException
@@ -39,10 +38,10 @@ def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-se', '--settings',action='store_true',default=False)
     parser.add_argument('-a', '--auth-service', type=str.lower, help='Auth Service', default='ptc')
-    parser.add_argument('-u', '--username', help='Username', required=False)
+    parser.add_argument('-u', '--username', help='Username', required=True)
     parser.add_argument('-p', '--password', help='Password', required=False)
-    parser.add_argument('-l', '--location', type=parse_unicode, help='Location, can be an address or coordinates', required=False)
-    parser.add_argument('-st', '--step-limit', help='Steps', required=False, type=int)
+    parser.add_argument('-l', '--location', type=parse_unicode, help='Location, can be an address or coordinates', required=True)
+    parser.add_argument('-st', '--step-limit', help='Steps', required=True, type=int)
     parser.add_argument('-sd', '--scan-delay', help='Time delay before beginning new scan', required=False, type=int, default=1)
     parser.add_argument('-dc','--display-in-console',help='Display Found Pokemon in Console',action='store_true',default=False)
     parser.add_argument('-H', '--host', help='Set web server listening host', default='127.0.0.1')
@@ -56,20 +55,12 @@ def get_args():
     parser.add_argument('-k', '--google-maps-key', help='Google Maps Javascript API Key', default=None, dest='gmaps_key')
     parser.add_argument('-C', '--cors', help='Enable CORS on web server', action='store_true', default=False)
     parser.add_argument('-D', '--db', help='Database filename', default='pogom.db')
-    parser.add_argument('-t', '--threads', help='Number of search threads', required=False, type=int, default=5, dest='num_threads')
     parser.set_defaults(DEBUG=False)
     args = parser.parse_args()
-
-    if (args.settings):
+    if (args.settings) :
         args = parse_config(args)
-    else:
-        if (args.username is None or args.location is None or args.step_limit is None):
-            parser.print_usage()
-            print sys.argv[0] + ': error: arguments -u/--username, -l/--location, -st/--step-limit are required'
-            sys.exit(1);
-
-        if args.password is None:
-            args.password = getpass.getpass()
+    elif args.password is None:
+        args.password = getpass.getpass()
 
     return args
 
@@ -95,7 +86,8 @@ def insert_mock_data():
                        latitude=locations[i][0],
                        longitude=locations[i][1],
                        disappear_time=disappear_time,
-                       detect_time=detect_time)
+                       detect_time=detect_time,
+                       aprox_found_datetime=detect_time)
 
     for i in range(num_pokestop):
 
@@ -131,7 +123,7 @@ def get_pokemon_name(pokemon_id):
 
     return get_pokemon_name.names[str(pokemon_id)]
 
-def load_gmaps_credentials(filepath):
+def load_credentials(filepath):
     try:
         with open(filepath+os.path.sep+'/config/credentials.json') as file:
             creds = json.load(file)

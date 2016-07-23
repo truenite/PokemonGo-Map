@@ -22,23 +22,19 @@ $.getJSON("static/locales/pokemon." + document.documentElement.lang + ".json").d
         idToPokemon[key] = value;
     });
 
-    // setup the filter lists
+    JSON.parse(readCookie("remember_select_exclude"));
     $selectExclude.select2({
         placeholder: "Select Pokémon",
         data: pokeList
     });
+    $selectExclude.val(JSON.parse(readCookie("remember_select_exclude"))).trigger("change");
+
+    JSON.parse(readCookie("remember_select_notify"));
     $selectNotify.select2({
         placeholder: "Select Pokémon",
         data: pokeList
     });
-
-    // recall saved lists
-    if (localStorage['remember_select_exclude']) {
-        $selectExclude.val(JSON.parse(localStorage.remember_select_exclude)).trigger("change");
-    }
-    if (localStorage['remember_select_notify']) {
-        $selectNotify.val(JSON.parse(localStorage.remember_select_notify)).trigger("change");
-    }
+    $selectNotify.val(JSON.parse(readCookie("remember_select_notify"))).trigger("change");
 });
 
 var excludedPokemon = [];
@@ -47,12 +43,14 @@ var notifiedPokemon = [];
 $selectExclude.on("change", function (e) {
     excludedPokemon = $selectExclude.val().map(Number);
     clearStaleMarkers();
-    localStorage.remember_select_exclude = JSON.stringify(excludedPokemon);
+    document.cookie = 'remember_select_exclude='+JSON.stringify(excludedPokemon)+
+            '; max-age=31536000; path=/';
 });
 
 $selectNotify.on("change", function (e) {
     notifiedPokemon = $selectNotify.val().map(Number);
-    localStorage.remember_select_notify = JSON.stringify(notifiedPokemon);
+    document.cookie = 'remember_select_notify='+JSON.stringify(notifiedPokemon)+
+            '; max-age=31536000; path=/';
 });
 
 var map;
@@ -64,7 +62,6 @@ var pGoStyle=[{"featureType":"landscape.man_made","elementType":"geometry.fill",
 var selectedStyle = 'light';
 
 function initMap() {
-
 
     map = new google.maps.Map(document.getElementById('map'), {
         center: {
@@ -87,6 +84,28 @@ function initMap() {
         },
     });
 
+    if (navigator.geolocation) {
+             navigator.geolocation.getCurrentPosition(function(position) {
+               var pos = {
+                 lat: position.coords.latitude,
+                 lng: position.coords.longitude
+               };
+               map.setCenter(pos);
+             }, function() {
+               handleLocationError(true, infoWindow, map.getCenter());
+             });
+           } else {
+             // Browser doesn't support Geolocation
+             handleLocationError(false, infoWindow, map.getCenter());
+           }
+
+         function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+           infoWindow.setPosition(pos);
+           infoWindow.setContent(browserHasGeolocation ?
+                                 'Error: The Geolocation service failed.' :
+                                 'Error: Your browser doesn\'t support geolocation.');
+         }
+
 	var style_dark = new google.maps.StyledMapType(darkStyle, {name: "Dark"});
 	map.mapTypes.set('dark_style', style_dark);
 
@@ -106,14 +125,14 @@ function initMap() {
 
     map.setMapTypeId(localStorage['map_style']);
 
-    marker = new google.maps.Marker({
-        position: {
-            lat: center_lat,
-            lng: center_lng
-        },
-        map: map,
-        animation: google.maps.Animation.DROP
-    });
+    // marker = new google.maps.Marker({
+    //     position: {
+    //         lat: center_lat,
+    //         lng: center_lng
+    //     },
+    //     map: map,
+    //     animation: google.maps.Animation.DROP
+    // });
 
     initSidebar();
 };
@@ -123,7 +142,6 @@ function initSidebar() {
     $('#pokemon-switch').prop('checked', localStorage.showPokemon === 'true');
     $('#pokestops-switch').prop('checked', localStorage.showPokestops === 'true');
     $('#scanned-switch').prop('checked', localStorage.showScanned === 'true');
-    $('#sound-switch').prop('checked', localStorage.playSound === 'true');
 
     var searchBox = new google.maps.places.SearchBox(document.getElementById('next-location'));
 
@@ -135,7 +153,7 @@ function initSidebar() {
         }
 
         var loc = places[0].geometry.location;
-        $.post("next_loc?lat=" + loc.lat() + "&lon=" + loc.lng(), {}).done(function (data) {
+        $.post("/next_loc?lat=" + loc.lat() + "&lon=" + loc.lng(), {}).done(function (data) {
             $("#next-location").val("");
             map.setCenter(loc);
             marker.setPosition(loc);
@@ -255,7 +273,6 @@ map_gyms = {} // Gyms
 map_pokestops = {} // Pokestops
 map_scanned = {} // Pokestops
 var gym_types = ["Uncontested", "Mystic", "Valor", "Instinct"];
-var audio = new Audio('https://github.com/AHAAAAAAA/PokemonGo-Map/raw/develop/static/sounds/ding.mp3');
 
 function setupPokemonMarker(item) {
     var marker = new google.maps.Marker({
@@ -272,9 +289,6 @@ function setupPokemonMarker(item) {
     });
 
     if (notifiedPokemon.indexOf(item.pokemon_id) > -1) {
-        if(localStorage.playSound === 'true'){
-          audio.play();
-        }
         sendNotification('A wild ' + item.pokemon_name + ' appeared!', 'Click to load map', 'static/icons/' + item.pokemon_id + '.png')
     }
 
@@ -352,18 +366,9 @@ function setupScannedMarker(item) {
     return marker;
 };
 
-function clearSelection() {
-    if (document.selection ) {
-        document.selection.empty();
-    } else if (window.getSelection) {
-        window.getSelection().removeAllRanges();
-    }
-};
-
 function addListeners(marker) {
     marker.addListener('click', function() {
         marker.infoWindow.open(map, marker);
-        clearSelection();
         updateLabelDiffTime();
         marker.persist = true;
     });
@@ -374,7 +379,6 @@ function addListeners(marker) {
 
     marker.addListener('mouseover', function() {
         marker.infoWindow.open(map, marker);
-        clearSelection();
         updateLabelDiffTime();
     });
 
@@ -409,8 +413,8 @@ function updateMap() {
 
     localStorage.showPokemon = localStorage.showPokemon || true;
     localStorage.showGyms = localStorage.showGyms || true;
-    localStorage.showPokestops = localStorage.showPokestops || false;
-    localStorage.showScanned = localStorage.showScanned || false;
+    localStorage.showPokestops = localStorage.showPokestops || true;
+    localStorage.showScanned = localStorage.showScanned || true;
 
     $.ajax({
         url: "raw_data",
@@ -531,9 +535,6 @@ $('#pokestops-switch').change(function() {
     }
 });
 
-$('#sound-switch').change(function() {
-    localStorage["playSound"] = this.checked;
-});
 
 $('#scanned-switch').change(function() {
     localStorage["showScanned"] = this.checked;
@@ -574,6 +575,17 @@ var updateLabelDiffTime = function() {
 };
 
 window.setInterval(updateLabelDiffTime, 1000);
+
+function readCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0;i < ca.length;i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1,c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    return null;
+}
 
 function sendNotification(title, text, icon) {
     if (Notification.permission !== "granted") {

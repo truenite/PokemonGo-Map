@@ -11,7 +11,7 @@ from flask_cors import CORS, cross_origin
 
 from pogom import config
 from pogom.app import Pogom
-from pogom.utils import get_args, insert_mock_data, load_gmaps_credentials
+from pogom.utils import get_args, insert_mock_data, load_credentials
 from pogom.search import search_loop
 from pogom.models import create_tables, Pokemon, Pokestop, Gym
 
@@ -57,7 +57,6 @@ if __name__ == '__main__':
     config['ORIGINAL_LATITUDE'] = position[0]
     config['ORIGINAL_LONGITUDE'] = position[1]
     config['LOCALE'] = args.locale
-    config['CHINA'] = args.china
 
     if not args.mock:
         start_locator_thread(args)
@@ -73,7 +72,7 @@ if __name__ == '__main__':
     if args.gmaps_key is not None:
         config['GMAPS_KEY'] = args.gmaps_key
     else:
-        config['GMAPS_KEY'] = load_gmaps_credentials(os.path.dirname(os.path.realpath(__file__)))['gmaps_key']
+        config['GMAPS_KEY'] = load_credentials(os.path.dirname(os.path.realpath(__file__)))['gmaps_key']
 
     if args.no_server:
         while not search_thread.isAlive():
