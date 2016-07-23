@@ -1,23 +1,34 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import os
 
 import logging
-from peewee import Model, SqliteDatabase, InsertQuery, IntegerField,\
+from peewee import Model, MySQLDatabase, InsertQuery, IntegerField,\
                    CharField, FloatField, BooleanField, DateTimeField
 from datetime import datetime
 from datetime import timedelta
 from base64 import b64encode
+from pymysql import MySQLError
 
-from .utils import get_pokemon_name, get_args
+from .utils import get_pokemon_name, get_args, load_mysql_credentials
 from .transform import transform_from_wgs_to_gcj
 from .customLog import printPokemon
 
+from . import config
 args = get_args()
-db = SqliteDatabase(args.db)
+
+credentials = load_mysql_credentials(os.path.dirname(os.path.realpath(__file__)))
+if not (credentials['mysql_host'] and  credentials['mysql_port'] and  credentials['mysql_user']
+        and  credentials['mysql_pass'] and  credentials['mysql_pass'] and credentials['mysql_db']):
+    raise MySQLError(\
+        "No MySQl credentials in \config\credentials.json file!")
+db = MySQLDatabase(credentials['mysql_db'], host=credentials['mysql_host'],
+                   port=credentials['mysql_port'], user=credentials['mysql_user'],
+                   passwd=credentials['mysql_pass'])
 log = logging.getLogger(__name__)
 
 
-class BaseModel(Model):
+class MySQLModel(Model):
     class Meta:
         database = db
 
@@ -31,7 +42,7 @@ class BaseModel(Model):
         return results
 
 
-class Pokemon(BaseModel):
+class Pokemon(MySQLModel):
     # We are base64 encoding the ids delivered by the api
     # because they are too big for sqlite to handle
     encounter_id = CharField(primary_key=True)
@@ -56,7 +67,7 @@ class Pokemon(BaseModel):
         return pokemons
 
 
-class Pokestop(BaseModel):
+class Pokestop(MySQLModel):
     pokestop_id = CharField(primary_key=True)
     enabled = BooleanField()
     latitude = FloatField()
@@ -66,7 +77,7 @@ class Pokestop(BaseModel):
     active_pokemon_id = IntegerField(null=True)
 
 
-class Gym(BaseModel):
+class Gym(MySQLModel):
     UNCONTESTED = 0
     TEAM_MYSTIC = 1
     TEAM_VALOR = 2
@@ -81,7 +92,7 @@ class Gym(BaseModel):
     longitude = FloatField()
     last_modified = DateTimeField()
 
-class ScannedLocation(BaseModel):
+class ScannedLocation(MySQLModel):
     scanned_id = CharField(primary_key=True)
     latitude = FloatField()
     longitude = FloatField()

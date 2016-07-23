@@ -29,9 +29,9 @@ def parse_config(args):
     args.step_limit = int(Config.get('Search_Settings', 'Steps'))
     args.scan_delay = int(Config.get('Search_Settings', 'Scan_delay'))
     if Config.get('Misc', 'Google_Maps_API_Key') :
-        args.gmaps_key = Config.get('Misc', 'Google_Maps_API_Key') 
-    args.host = Config.get('Misc', 'Host') 
-    args.port = Config.get('Misc', 'Port') 
+        args.gmaps_key = Config.get('Misc', 'Google_Maps_API_Key')
+    args.host = Config.get('Misc', 'Host')
+    args.port = Config.get('Misc', 'Port')
     return args
 
 def get_args():
@@ -61,7 +61,7 @@ def get_args():
     args = parser.parse_args()
 
     if (args.settings):
-        args = parse_config(args) 
+        args = parse_config(args)
     else:
         if (args.username is None or args.location is None or args.step_limit is None):
             parser.print_usage()
@@ -131,7 +131,7 @@ def get_pokemon_name(pokemon_id):
 
     return get_pokemon_name.names[str(pokemon_id)]
 
-def load_credentials(filepath):
+def load_gmaps_credentials(filepath):
     try:
         with open(filepath+os.path.sep+'/config/credentials.json') as file:
             creds = json.load(file)
@@ -142,4 +142,12 @@ def load_credentials(filepath):
             "No Google Maps Javascript API key entered in \config\credentials.json file!"
             " Please take a look at the wiki for instructions on how to generate this key,"
             " then add that key to the file!")
+    return creds
+
+def load_mysql_credentials(filepath):
+    try:
+        with open(filepath+os.path.sep+'../config/credentials.json') as file:
+            creds = json.load(file)
+    except IOError:
+        creds = {}
     return creds
