@@ -5,10 +5,9 @@ import os
 import sys
 import logging
 import time
-import subprocess
 import multiprocessing
+import subprocess
 from threading import Thread
-
 from classes import Arguments, DAL
 from classes.DAL import Search_Location, PCAccount, Step_Distance
 from PokemonGoMap import runserver
@@ -38,6 +37,9 @@ def close_app(signal, frame):
 
 def start_web():
     args = Arguments('agarciapokemon','agarciapokemon',47.6191155,-122.3410584,9,0,False,True)
+    env = os.getenv('SERVER_SOFTWARE')
+    if (env and env.startswith('Google App Engine/')):
+        args.port=80
     process = multiprocessing.Process(name='0', target=start_web_server, args=(args,))
     process.start()
     running_processes.append(process)
