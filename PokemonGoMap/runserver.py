@@ -27,6 +27,14 @@ def start_locator_thread(args):
     search_thread.name = 'search_thread'
     search_thread.start()
 
+def start_web_server(args):
+    config['ORIGINAL_LATITUDE'] = args.latitude
+    config['ORIGINAL_LONGITUDE'] = args.longitude
+    config['LOCALE'] = args.locale
+    app = Pogom(__name__)
+    config['ROOT_PATH'] = app.root_path
+    config['GMAPS_KEY'] = load_credentials(os.path.dirname(os.path.realpath(__file__)))['gmaps_key']
+    app.run(threaded=True, debug=args.debug, host=args.host, port=args.port)
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.WARNING, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')

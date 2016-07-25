@@ -12,6 +12,7 @@ from threading import Thread
 from classes import Arguments, DAL
 from classes.DAL import Search_Location, PCAccount, Step_Distance
 from PokemonGoMap import runserver
+from PokemonGoMap.runserver import start_web_server
 from PokemonGoMap.pogom.utils import get_args, load_credentials
 from PokemonGoMap.pogom.search import search_loop
 from PokemonGoMap.pogom.models import create_tables, Pokemon, Pokestop, Gym
@@ -35,15 +36,26 @@ def close_app(signal, frame):
             rp.terminate()
     sys.exit(0)
 
+def start_web():
+    args = Arguments('agarciapokemon','agarciapokemon',47.6191155,-122.3410584,9,0,False,True)
+    process = multiprocessing.Process(name='0', target=start_web_server, args=(args,))
+    process.start()
+    running_processes.append(process)
+    print 'Starting:', process.name, process.pid
+    sys.stdout.flush()
+
 def check_for_dead_processes():
     global running_processes
     for rp in running_processes:
         if(rp.is_alive() == False):
-            print("Proceso " + str(rp.pid) + " con search_id : " + rp.name + " muerto")
-            s = Search_Location.get(Search_Location.search_location_id == rp.name)
-            s.running=0
-            s.save()
-            running_processes.remove(rp)
+            if(rp.name=="0"):
+                start_web()
+            else:
+                print("Proceso " + str(rp.pid) + " con search_id : " + rp.name + " muerto")
+                s = Search_Location.get(Search_Location.search_location_id == rp.name)
+                s.running=0
+                s.save()
+                running_processes.remove(rp)
 
 def add_and_start_process(args):
     global running_processes
@@ -93,20 +105,19 @@ def get_python_command(pending_search):
         coordinates = get_coordenates_for_search(pending_search["parent_id"],
          pending_search["direction_from_parent"], pending_search["step_count"], pending_search["search_location_id"])
 
-    args = Arguments(account.username, account.password, coordinates[0], coordinates[1], pending_search["step_count"], pending_search["search_location_id"])
+    args = Arguments(account.username, account.password, coordinates[0], coordinates[1], pending_search["step_count"], pending_search["search_location_id"], True, False)
 
     return args
 
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')
 
 if __name__ == "__main__":
-#    try:
     signal.signal(signal.SIGINT, close_app)
+    start_web()
     while(True):
         pending_searches = Search_Location.get_not_running()
         for ps in pending_searches:
             args = get_python_command(ps)
-            #running_threads.append(start_locator_thread(args))
             add_and_start_process(args)
             time.sleep(2)
         check_for_dead_processes()

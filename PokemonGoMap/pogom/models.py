@@ -22,7 +22,13 @@ if not (credentials['mysql_host'] and  credentials['mysql_port'] and  credential
         and  credentials['mysql_pass'] and  credentials['mysql_pass'] and credentials['mysql_db']):
     raise MySQLError(\
         "No MySQl credentials in \config\credentials.json file!")
-db = MySQLDatabase(credentials['mysql_db'], host=credentials['mysql_host'],
+
+env = os.getenv('SERVER_SOFTWARE')
+if (env and env.startswith('Google App Engine/')):
+    db = MySQLDatabase(credentials['mysql_db'], unix_socket=credentials['mysql_socket'],
+    user=credentials['mysql_user'], passwd=credentials['mysql_pass'])
+else:
+    db = MySQLDatabase(credentials['mysql_db'], host=credentials['mysql_host'],
                    port=credentials['mysql_port'], user=credentials['mysql_user'],
                    passwd=credentials['mysql_pass'])
 log = logging.getLogger(__name__)

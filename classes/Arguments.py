@@ -25,16 +25,17 @@ class Arguments:
     host='127.0.0.1'
     locale='en'
     mock=False
-    port=5000
+    port=8080
     scan_delay=100
     settings=False
 
 
-    def __init__(self, username, password, latitude, longitude, step_limit, search_id):
+    def __init__(self, username, password, latitude, longitude, step_limit, search_id, no_server, mock):
         self.username = username
         self.password = password
         self.latitude = latitude
         self.longitude = longitude
         self.step_limit = step_limit
         self.search_id = search_id
-#        print (self.username, self.password, self.location, self.step_limit)
+        self.no_server = no_server
+        self.mock = mock
