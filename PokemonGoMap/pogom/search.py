@@ -4,9 +4,12 @@
 import logging
 import time
 import math
+import sys
 
 from pgoapi import PGoApi
 from pgoapi.utilities import f2i, get_cellid
+from pgoapi.utilities import get_pos_by_name
+from .models import Search_Location
 
 from . import config
 from .models import parse_map
@@ -51,7 +54,7 @@ def generate_location_steps(initial_location, num_steps):
     yield (initial_location[0],initial_location[1], 0) #Middle circle
 
     while ring < num_steps:
-        #Move the location diagonally to top left spot, then start the circle which will end up back here for the next ring 
+        #Move the location diagonally to top left spot, then start the circle which will end up back here for the next ring
         #Move Lat north first
         lat_location += lat_gap_degrees
         lng_location -= calculate_lng_degrees(lat_location)
@@ -87,7 +90,6 @@ def generate_location_steps(initial_location, num_steps):
 
 def login(args, position):
     log.info('Attempting login to Pokemon Go.')
-
     api.set_position(*position)
 
     while not api.login(args.auth_service, args.username, args.password):
@@ -112,6 +114,7 @@ def search(args, i):
     else:
         login(args, position)
 
+
     for step, step_location in enumerate(generate_location_steps(position, num_steps), 1):
         if 'NEXT_LOCATION' in config:
             log.info('New location found. Starting new scan.')
@@ -123,6 +126,7 @@ def search(args, i):
 
         log.info('Scanning step {:d} of {:d}.'.format(step, total_steps))
         log.debug('Scan location is {:f}, {:f}'.format(step_location[0], step_location[1]))
+        #print('{:f}, {:f}'.format(step_location[0], step_location[1]))
 
         response_dict = {}
         failed_consecutive = 0
@@ -145,8 +149,17 @@ def search(args, i):
         time.sleep(config['REQ_SLEEP'])
 
 
-def search_loop(args):
+def search_loop(args,parseLocationFromArg = False):
     i = 0
+    config['LOCALE'] = args.locale
+    if(parseLocationFromArg==True):
+        config['ORIGINAL_LATITUDE'] = args.latitude
+        config['ORIGINAL_LONGITUDE'] = args.longitude
+
+    search_location = Search_Location.get(Search_Location.search_location_id == args.search_id)
+    search_location.running = 1
+    search_location.save()
+
     try:
         while True:
             log.info("Map iteration: {}".format(i))

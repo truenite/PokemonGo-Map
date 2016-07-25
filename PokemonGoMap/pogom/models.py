@@ -27,7 +27,6 @@ db = MySQLDatabase(credentials['mysql_db'], host=credentials['mysql_host'],
                    passwd=credentials['mysql_pass'])
 log = logging.getLogger(__name__)
 
-
 class MySQLModel(Model):
     class Meta:
         database = db
@@ -40,6 +39,17 @@ class MySQLModel(Model):
                 result['latitude'],  result['longitude'] = \
                     transform_from_wgs_to_gcj(result['latitude'],  result['longitude'])
         return results
+
+class Search_Location(MySQLModel):
+    search_location_id = IntegerField(primary_key=True)
+    active = BooleanField()
+    parent_id = IntegerField()
+    direction_from_parent = CharField()
+    step_count = IntegerField()
+    latitude = DoubleField()
+    longitude = DoubleField()
+    account_id = IntegerField()
+    running = BooleanField()
 
 
 class Pokemon(MySQLModel):
@@ -76,7 +86,6 @@ class Pokestop(MySQLModel):
     last_modified = DateTimeField()
     lure_expiration = DateTimeField(null=True)
     active_pokemon_id = IntegerField(null=True)
-
 
 class Gym(MySQLModel):
     UNCONTESTED = 0
@@ -132,7 +141,7 @@ def parse_map(map_dict, iteration_num, step, step_location):
                 'latitude': p['latitude'],
                 'longitude': p['longitude'],
                 'disappear_time': d_t,
-                'aprox_found_datetime': datetime.now()
+                'aprox_found_datetime': datetime.utcnow()
             }
 
         if iteration_num > 0 or step > 50:

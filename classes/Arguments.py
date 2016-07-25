@@ -1,0 +1,40 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+import logging
+import time
+
+class Arguments:
+    auth_service='ptc'
+    username=''
+    password=''
+    latitude=0
+    longitude=0
+    step_limit=0
+    search_id=0
+    no_server=True
+    DEBUG=False
+    china=False
+    cors=False
+    db='pogom.db'
+    debug=True
+    display_in_console=False
+    gmaps_key=None
+    host='127.0.0.1'
+    locale='en'
+    mock=False
+    port=5000
+    scan_delay=100
+    settings=False
+
+
+    def __init__(self, username, password, latitude, longitude, step_limit, search_id):
+        self.username = username
+        self.password = password
+        self.latitude = latitude
+        self.longitude = longitude
+        self.step_limit = step_limit
+        self.search_id = search_id
+#        print (self.username, self.password, self.location, self.step_limit)

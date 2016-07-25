@@ -40,7 +40,7 @@ def f2h(float):
 
 def h2f(hex):
   return struct.unpack('<d', struct.pack('<Q', int(hex,16)))[0]
-  
+
 def to_camel_case(value):
   def camelcase():
     while True:
@@ -60,15 +60,15 @@ def get_pos_by_name(location_name):
         loc = geolocator.geocode(location_name)
         if loc:
             latitude, longitude, altitude = loc.latitude, loc.longitude, loc.altitude
-    
+
     return (latitude, longitude, altitude)
-    
+
 
 def get_class(cls):
     module_, class_ = cls.rsplit('.', 1)
     class_ = getattr(import_module(module_), class_)
     return class_
-    
+
 def get_cellid(lat, long):
     origin = CellId.from_lat_lng(LatLng.from_degrees(lat, long)).parent(15)
     walk = [origin.id()]
