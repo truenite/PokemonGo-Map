@@ -155,6 +155,7 @@ def search_loop(args,parseLocationFromArg = False):
     if(parseLocationFromArg==True):
         config['ORIGINAL_LATITUDE'] = args.latitude
         config['ORIGINAL_LONGITUDE'] = args.longitude
+        config['SEARCH_ID'] = args.search_id
 
     search_location = Search_Location.get(Search_Location.search_location_id == args.search_id)
     search_location.running = 1

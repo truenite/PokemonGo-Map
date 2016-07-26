@@ -9,7 +9,6 @@ from flask.json import JSONEncoder
 from flask_compress import Compress
 from datetime import datetime
 from s2sphere import *
-from pogom.utils import get_args
 
 from . import config
 from .models import Pokemon, Gym, Pokestop, ScannedLocation
@@ -29,7 +28,6 @@ class Pogom(Flask):
         self.route("/mobile", methods=['GET'])(self.list_pokemon)
 
     def fullmap(self):
-        args = get_args()
         display = "inline"
 
         return render_template('map.html',

@@ -146,6 +146,7 @@ class Pokestop(MySQLModel):
         if swLat == None or swLng == None or neLat == None or neLng == None:
             query = (Pokestop
                  .select()
+                 .where(Pokestop.lure_expiration != None)
                  .dicts())
         else:
             query = (Pokestop
@@ -154,7 +155,7 @@ class Pokestop(MySQLModel):
                     (Pokestop.longitude >= swLng) &
                     (Pokestop.latitude <= neLat) &
                     (Pokestop.longitude <= neLng)&
-                    Pokestop.lure_expiration >> None)
+                    (Pokestop.lure_expiration != None))
                  .dicts())
 
         pokestops = []

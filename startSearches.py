@@ -7,6 +7,7 @@ import logging
 import time
 import multiprocessing
 import subprocess
+import socket
 from threading import Thread
 from classes import Arguments, DAL
 from classes.DAL import Search_Location, PCAccount, Step_Distance
@@ -37,9 +38,8 @@ def close_app(signal, frame):
 
 def start_web():
     args = Arguments('agarciapokemon','agarciapokemon',47.6191155,-122.3410584,9,0,False,True)
-    env = os.getenv('SERVER_SOFTWARE')
-    if (env and env.startswith('Google App Engine/')):
-        args.port=80
+    if (!socket.gethostname().startswith('instance')):
+        args.port=5000
     process = multiprocessing.Process(name='0', target=start_web_server, args=(args,))
     process.start()
     running_processes.append(process)
@@ -117,10 +117,10 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, close_app)
     start_web()
     while(True):
-    #     pending_searches = Search_Location.get_not_running()
-    #     for ps in pending_searches:
-    #         args = get_python_command(ps)
-    #         add_and_start_process(args)
-    #         time.sleep(2)
-    #     check_for_dead_processes()
+        pending_searches = Search_Location.get_not_running()
+        for ps in pending_searches:
+            args = get_python_command(ps)
+            add_and_start_process(args)
+            time.sleep(2)
+        check_for_dead_processes()
          time.sleep(10)
