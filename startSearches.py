@@ -123,5 +123,4 @@ if __name__ == "__main__":
             add_and_start_process(args)
             time.sleep(2)
         check_for_dead_processes()
-        print("Waiting 10 secs")
         time.sleep(10)

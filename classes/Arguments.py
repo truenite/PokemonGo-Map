@@ -22,7 +22,7 @@ class Arguments:
     debug=True
     display_in_console=False
     gmaps_key=None
-    host='127.0.0.1'
+    host='0.0.0.0'
     locale='en'
     mock=False
     port=80

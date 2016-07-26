@@ -87,6 +87,19 @@ class Pokestop(MySQLModel):
     lure_expiration = DateTimeField(null=True)
     active_pokemon_id = IntegerField(null=True)
 
+    @classmethod
+    def get_lured():
+        query = (Pokestop
+                 .select()
+                 .where(Pokestop.lure_expiration != null)
+                 .dicts())
+
+        pokestops = []
+        for p in query:
+            pokestops.append(p)
+
+        return pokestops
+
 class Gym(MySQLModel):
     UNCONTESTED = 0
     TEAM_MYSTIC = 1
