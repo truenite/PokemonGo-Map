@@ -98,6 +98,7 @@ def login(args, position):
             sys.exit()
         log.info('Failed to login to Pokemon Go. Trying again.')
         time.sleep(config['REQ_SLEEP'])
+        attempts=attempts+1
 
     log.info('Login to Pokemon Go successful.')
 
@@ -106,6 +107,7 @@ def search(args, i):
     num_steps = args.step_limit
     total_steps = (3 * (num_steps**2)) - (3 * num_steps) + 1
     position = (config['ORIGINAL_LATITUDE'], config['ORIGINAL_LONGITUDE'], 0)
+    config['REQ_SLEEP']=15
 
     if api._auth_provider and api._auth_provider._ticket_expire:
         remaining_time = api._auth_provider._ticket_expire/1000 - time.time()
