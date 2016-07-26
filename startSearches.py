@@ -38,7 +38,7 @@ def close_app(signal, frame):
 
 def start_web():
     args = Arguments('agarciapokemon','agarciapokemon',47.6191155,-122.3410584,9,0,False,True)
-    if (!socket.gethostname().startswith('instance')):
+    if (socket.gethostname().startswith('instance')==False):
         args.port=5000
     process = multiprocessing.Process(name='0', target=start_web_server, args=(args,))
     process.start()
@@ -123,4 +123,4 @@ if __name__ == "__main__":
             add_and_start_process(args)
             time.sleep(2)
         check_for_dead_processes()
-         time.sleep(10)
+        time.sleep(10)

@@ -92,7 +92,10 @@ def login(args, position):
     log.info('Attempting login to Pokemon Go.')
     api.set_position(*position)
 
+    attempts = 0
     while not api.login(args.auth_service, args.username, args.password):
+        if(attempts >= args.attempts_to_login):
+            sys.exit()
         log.info('Failed to login to Pokemon Go. Trying again.')
         time.sleep(config['REQ_SLEEP'])
 
