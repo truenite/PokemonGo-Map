@@ -3,7 +3,9 @@
 import os
 import logging
 from peewee import Model, MySQLDatabase, InsertQuery, IntegerField,\
-                   CharField, BooleanField, DateTimeField, DoubleField
+                   CharField, BooleanField, DateTimeField, DoubleField,\
+                   OperationalError
+
 from datetime import datetime
 from datetime import timedelta
 from base64 import b64encode
@@ -64,19 +66,60 @@ class Pokemon(MySQLModel):
     aprox_found_datetime = DateTimeField()
 
     @classmethod
-    def get_active(cls):
-        query = (Pokemon
+    def get_active(cls, swLat, swLng, neLat, neLng):
+        if swLat == None or swLng == None or neLat == None or neLng == None:
+            query = (Pokemon
                  .select()
                  .where(Pokemon.disappear_time > datetime.utcnow())
+                 .dicts())
+        else:
+            query = (Pokemon
+                 .select()
+                 .where((Pokemon.disappear_time > datetime.utcnow()) &
+                    (Pokemon.latitude >= swLat) &
+                    (Pokemon.longitude >= swLng) &
+                    (Pokemon.latitude <= neLat) &
+                    (Pokemon.longitude <= neLng))
                  .dicts())
 
         pokemons = []
         for p in query:
             p['pokemon_name'] = get_pokemon_name(p['pokemon_id'])
+            if args.china:
+                p['latitude'], p['longitude'] = \
+                    transform_from_wgs_to_gcj(p['latitude'], p['longitude'])
             pokemons.append(p)
 
         return pokemons
 
+    @classmethod
+    def get_active_by_id(cls, ids, swLat, swLng, neLat, neLng):
+        if swLat == None or swLng == None or neLat == None or neLng == None:
+            query = (Pokemon
+                     .select()
+                     .where((Pokemon.pokemon_id << ids) &
+                            (Pokemon.disappear_time > datetime.utcnow()))
+                     .dicts())
+        else:
+            query = (Pokemon
+                     .select()
+                     .where((Pokemon.pokemon_id << ids) &
+                            (Pokemon.disappear_time > datetime.utcnow()) &
+                            (Pokemon.latitude >= swLat) &
+                            (Pokemon.longitude >= swLng) &
+                            (Pokemon.latitude <= neLat) &
+                            (Pokemon.longitude <= neLng))
+                     .dicts())
+
+        pokemons = []
+        for p in query:
+            p['pokemon_name'] = get_pokemon_name(p['pokemon_id'])
+            if args.china:
+                p['latitude'], p['longitude'] = \
+                    transform_from_wgs_to_gcj(p['latitude'], p['longitude'])
+            pokemons.append(p)
+
+        return pokemons
 
 class Pokestop(MySQLModel):
     pokestop_id = CharField(primary_key=True)
@@ -87,18 +130,43 @@ class Pokestop(MySQLModel):
     lure_expiration = DateTimeField(null=True)
     active_pokemon_id = IntegerField(null=True)
 
-    # @classmethod
-    # def get_lured():
-    #     query = (Pokestop
-    #              .select()
-    #              .where(Pokestop.lure_expiration != null)
-    #              .dicts())
-    #
-    #     pokestops = []
-    #     for p in query:
-    #         pokestops.append(p)
-    #
-    #     return pokestops
+    @classmethod
+    def get_lured():
+        query = (Pokestop
+                 .select()
+                 .where(Pokestop.lure_expiration >> None)
+                 .dicts())
+
+        pokestops = []
+        for p in query:
+            pokestops.append(p)
+
+    @classmethod
+    def get_stops(cls, swLat, swLng, neLat, neLng):
+        if swLat == None or swLng == None or neLat == None or neLng == None:
+            query = (Pokestop
+                 .select()
+                 .dicts())
+        else:
+            query = (Pokestop
+                 .select()
+                 .where((Pokestop.latitude >= swLat) &
+                    (Pokestop.longitude >= swLng) &
+                    (Pokestop.latitude <= neLat) &
+                    (Pokestop.longitude <= neLng)&
+                    Pokestop.lure_expiration >> None)
+                 .dicts())
+
+        pokestops = []
+        for p in query:
+            if args.china:
+                p['latitude'], p['longitude'] = \
+                    transform_from_wgs_to_gcj(p['latitude'], p['longitude'])
+            pokestops.append(p)
+
+        return pokestops
+
+        return pokestops
 
 class Gym(MySQLModel):
     UNCONTESTED = 0
@@ -115,6 +183,28 @@ class Gym(MySQLModel):
     longitude = DoubleField()
     last_modified = DateTimeField()
 
+    @classmethod
+    def get_gyms(cls, swLat, swLng, neLat, neLng):
+        if swLat == None or swLng == None or neLat == None or neLng == None:
+            query = (Gym
+                 .select()
+                 .dicts())
+        else:
+            query = (Gym
+                 .select()
+                 .where((Gym.latitude >= swLat) &
+                    (Gym.longitude >= swLng) &
+                    (Gym.latitude <= neLat) &
+                    (Gym.longitude <= neLng))
+                 .dicts())
+
+        gyms = []
+        for g in query:
+            gyms.append(g)
+
+        return gyms
+
+
 class ScannedLocation(MySQLModel):
     scanned_id = CharField(primary_key=True)
     latitude = DoubleField()
@@ -122,10 +212,14 @@ class ScannedLocation(MySQLModel):
     last_modified = DateTimeField()
 
     @classmethod
-    def get_recent(cls):
+    def get_recent(cls, swLat, swLng, neLat, neLng):
         query = (ScannedLocation
                  .select()
-                 .where(ScannedLocation.last_modified >= (datetime.utcnow() - timedelta(minutes=15)))
+                 .where((ScannedLocation.last_modified >= (datetime.utcnow() - timedelta(minutes=15))) &
+                    (ScannedLocation.latitude >= swLat) &
+                    (ScannedLocation.longitude >= swLng) &
+                    (ScannedLocation.latitude <= neLat) &
+                    (ScannedLocation.longitude <= neLng))
                  .dicts())
 
         scans = []
@@ -219,9 +313,13 @@ def bulk_upsert(cls, data):
 
     while i < num_rows:
         log.debug("Inserting items {} to {}".format(i, min(i+step, num_rows)))
-        InsertQuery(cls, rows=data.values()[i:min(i+step, num_rows)]).upsert().execute()
-        i+=step
+        try:
+            InsertQuery(cls, rows=data.values()[i:min(i+step, num_rows)]).upsert().execute()
+        except OperationalError as e:
+            log.warning("%s... Retrying", e)
+            continue
 
+        i+=step
 
 
 def create_tables():

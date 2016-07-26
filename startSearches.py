@@ -117,10 +117,10 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, close_app)
     start_web()
     while(True):
-        pending_searches = Search_Location.get_not_running()
-        for ps in pending_searches:
-            args = get_python_command(ps)
-            add_and_start_process(args)
-            time.sleep(2)
-        check_for_dead_processes()
-        time.sleep(10)
+    #     pending_searches = Search_Location.get_not_running()
+    #     for ps in pending_searches:
+    #         args = get_python_command(ps)
+    #         add_and_start_process(args)
+    #         time.sleep(2)
+    #     check_for_dead_processes()
+         time.sleep(10)

@@ -25,7 +25,7 @@ class Arguments:
     host='0.0.0.0'
     locale='en'
     mock=False
-    port=80
+    port=5000
     scan_delay=100
     settings=False
 
