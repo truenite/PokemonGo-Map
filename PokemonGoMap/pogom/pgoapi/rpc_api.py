@@ -198,6 +198,7 @@ class RpcApi:
 
             entry_name = RpcEnum.RequestMethod.Name(entry_id)
             proto_name = to_camel_case(entry_name.lower()) + 'Response'
+            #proto_classname = 'pogom.pgoapi.protos.RpcSub_pb2.' + proto_name
             proto_classname = 'PokemonGoMap.pogom.pgoapi.protos.RpcSub_pb2.' + proto_name
 
             subresponse_return = None

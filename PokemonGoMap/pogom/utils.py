@@ -64,7 +64,7 @@ def get_args():
         args = parse_config(args)
     # elif args.password is None:
     #     args.password = getpass.getpass()
-
+    
     return args
 
 def insert_mock_data():

@@ -5,6 +5,9 @@ import logging
 import time
 import math
 import sys
+import psutil
+import os
+
 
 from pgoapi import PGoApi
 from pgoapi.utilities import f2i, get_cellid
@@ -94,10 +97,11 @@ def login(args, position):
 
     attempts = 0
     while not api.login(args.auth_service, args.username, args.password):
-        if(attempts >= args.attempts_to_login):
-            sys.exit()
         log.info('Failed to login to Pokemon Go. Trying again.')
         time.sleep(config['REQ_SLEEP'])
+        if(attempts >= args.attempts_to_login):
+            sys.exit()
+        log.error('Login attempts {:d} - waiting to get to {:d} process {:d}'.format(attempts,args.attempts_to_login, os.getpid()))
         attempts=attempts+1
 
     log.info('Login to Pokemon Go successful.')
@@ -107,11 +111,12 @@ def search(args, i):
     num_steps = args.step_limit
     total_steps = (3 * (num_steps**2)) - (3 * num_steps) + 1
     position = (config['ORIGINAL_LATITUDE'], config['ORIGINAL_LONGITUDE'], 0)
-    config['REQ_SLEEP']=15
+    config['REQ_SLEEP']=2
+    config['REQ_MAX_FAILED']=5
+    config['REQ_HEAVY_SLEEP']=2
 
     if api._auth_provider and api._auth_provider._ticket_expire:
         remaining_time = api._auth_provider._ticket_expire/1000 - time.time()
-
         if remaining_time > 60:
             log.info("Skipping Pokemon Go login process since already logged in for another {:.2f} seconds".format(remaining_time))
         else:
@@ -141,7 +146,7 @@ def search(args, i):
                 try:
                     parse_map(response_dict, i, step, step_location)
                 except KeyError:
-                    log.error('Scan step {:d} failed. Response dictionary key error.'.format(step))
+                    log.error('Scan step {:d} failed. Response dictionary key error. Process : {:d}'.format(step, args.search_id))
                     failed_consecutive += 1
                     if(failed_consecutive >= config['REQ_MAX_FAILED']):
                         log.error('Niantic servers under heavy load. Waiting before trying again')
@@ -151,12 +156,13 @@ def search(args, i):
                 log.info('Map Download failed. Trying again.')
 
         log.info('Completed {:5.2f}% of scan.'.format(float(step) / num_steps**2*100))
-        time.sleep(config['REQ_SLEEP'])
 
 
 def search_loop(args,parseLocationFromArg = False):
     i = 0
     config['LOCALE'] = args.locale
+    #logging.basicConfig(filename='process - ' + str(args.search_id) + '.log',level=logging.DEBUG)
+
     if(parseLocationFromArg==True):
         config['ORIGINAL_LATITUDE'] = args.latitude
         config['ORIGINAL_LONGITUDE'] = args.longitude
@@ -177,6 +183,6 @@ def search_loop(args,parseLocationFromArg = False):
 
     # This seems appropriate
     except:
-        log.info('Crashed, waiting {:d} seconds before restarting search.'.format(args.scan_delay))
+        log.debug('Crashed, waiting {:d} seconds before restarting search.'.format(args.scan_delay))
         time.sleep(args.scan_delay)
         search_loop(args)

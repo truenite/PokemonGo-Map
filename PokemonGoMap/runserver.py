@@ -37,13 +37,14 @@ def start_web_server(args):
     app.run(threaded=True, debug=args.debug, host=args.host, port=args.port)
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.WARNING, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')
+    logging.basicConfig(level=logging.info, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')
 
     logging.getLogger("peewee").setLevel(logging.INFO)
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("pogom.pgoapi.pgoapi").setLevel(logging.WARNING)
+    logging.getLogger("requests").setLevel(logging.DEBUG)
+    logging.getLogger("pogom.pgoapi.pgoapi").setLevel(logging.INFO)
     logging.getLogger("pogom.pgoapi.rpc_api").setLevel(logging.INFO)
     logging.getLogger('werkzeug').setLevel(logging.ERROR)
+    logging.getLogger("search").setLevel(logging.INFO)
 
     args = get_args()
 

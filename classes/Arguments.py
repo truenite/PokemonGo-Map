@@ -26,9 +26,9 @@ class Arguments:
     locale='en'
     mock=False
     port=80
-    scan_delay=100
+    scan_delay=0
     settings=False
-    attempts_to_login=12
+    attempts_to_login=5
 
 
     def __init__(self, username, password, latitude, longitude, step_limit, search_id, no_server, mock):

@@ -8,6 +8,8 @@ import time
 import multiprocessing
 import subprocess
 import socket
+import logging
+import signal
 from threading import Thread
 from classes import Arguments, DAL
 from classes.DAL import Search_Location, PCAccount, Step_Distance
@@ -22,8 +24,6 @@ from importlib import import_module
 running_threads = []
 running_processes = []
 
-import signal
-import sys
 
 def close_app(signal, frame):
     global running_processes
@@ -43,7 +43,7 @@ def start_web():
     process = multiprocessing.Process(name='0', target=start_web_server, args=(args,))
     process.start()
     running_processes.append(process)
-    print 'Starting:', process.name, process.pid
+    log.info("Starting web '%s' - '%s'", process.name, process.pid)
     sys.stdout.flush()
 
 def check_for_dead_processes():
@@ -53,7 +53,7 @@ def check_for_dead_processes():
             if(rp.name=="0"):
                 start_web()
             else:
-                print("Proceso " + str(rp.pid) + " con search_id : " + rp.name + " muerto")
+                log.info("Proceso {:d} con searchId {:s} estaba muerto".format(rp.pid,rp.name))
                 s = Search_Location.get(Search_Location.search_location_id == rp.name)
                 s.running=0
                 s.save()
@@ -65,7 +65,7 @@ def add_and_start_process(args):
     process = multiprocessing.Process(name=''+str(args.search_id), target=search_loop, args=(args,True,))
     process.start()
     running_processes.append(process)
-    print 'Starting:', process.name, process.pid
+    log.info("Starting '%s' - '%s'", process.name, process.pid)
     sys.stdout.flush()
 # except KeyboardInterrupt:
 #     return 'KeyboardException'
@@ -111,7 +111,9 @@ def get_python_command(pending_search):
 
     return args
 
-logging.basicConfig(level=logging.WARNING, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')
+
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')
 
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, close_app)
@@ -121,6 +123,6 @@ if __name__ == "__main__":
         for ps in pending_searches:
             args = get_python_command(ps)
             add_and_start_process(args)
-            time.sleep(2)
+            time.sleep(1)
         check_for_dead_processes()
-        time.sleep(10)
+        time.sleep(1)
