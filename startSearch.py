@@ -11,7 +11,7 @@ import socket
 import logging
 import signal
 from threading import Thread
-from PokemonDAL import Arguments, DB, models
+from PokemonDAL import Arguments, models
 from PokemonDAL.models import Pokemon, Pokestop, Gym, Search_Location, PCAccount, Step_Distance
 from PokemonFinder.search import search_loop
 from PokemonFinder.pgoapi import *
@@ -104,8 +104,8 @@ def get_python_command(pending_search):
     return args
 
 log = logging.getLogger("startSearch")
-logLevel = logging.INFO
-logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')
+logLevel = logging.ERROR
+logging.basicConfig(level=logLevel, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')
 
 if __name__ == "__main__":
     logging.getLogger("peewee").setLevel(logLevel)

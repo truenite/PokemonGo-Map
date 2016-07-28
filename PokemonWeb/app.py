@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
 from flask import Flask, jsonify, render_template, request
 from flask.json import JSONEncoder
 from flask_compress import Compress
@@ -11,7 +10,6 @@ import logging
 import sys
 import os
 from flask_cors import CORS, cross_origin
-
 
 sys.path.append(os.path.dirname(os.path.realpath(__file__))+'/../PokemonDAL/')
 from models import *

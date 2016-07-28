@@ -11,6 +11,7 @@ import transform
 from peewee import Model, MySQLDatabase, InsertQuery, IntegerField,\
                    CharField, BooleanField, DateTimeField, DoubleField,\
                    OperationalError
+
 from datetime import datetime
 from datetime import timedelta
 from base64 import b64encode
@@ -30,15 +31,20 @@ def load_mysql_credentials(filepath):
 
 credentials = load_mysql_credentials(os.path.dirname(os.path.realpath(__file__)))
 
-if not (credentials['mysql_host'] and  credentials['mysql_port'] and  credentials['mysql_user']
-        and  credentials['mysql_pass'] and  credentials['mysql_pass'] and credentials['mysql_db']):
-    raise MySQLError(\
-        "No MySQl credentials in credentials.json file!")
-db = MySQLDatabase(credentials['mysql_db'], host=credentials['mysql_host'],
+env = os.getenv('SERVER_SOFTWARE')
+if (env and env.startswith('Google App Engine/')):
+    db = MySQLDatabase(credentials['mysql_db'], unix_socket=credentials['mysql_socket'],
+    user=credentials['mysql_user'], passwd=credentials['mysql_pass'])
+
+else:
+    if not (credentials['mysql_host'] and  credentials['mysql_port'] and  credentials['mysql_user']
+    and  credentials['mysql_pass'] and  credentials['mysql_pass'] and credentials['mysql_db']):
+        raise MySQLError("No MySQl credentials in credentials.json file!")
+    db = MySQLDatabase(credentials['mysql_db'], host=credentials['mysql_host'],
                    port=credentials['mysql_port'], user=credentials['mysql_user'],
                    passwd=credentials['mysql_pass'])
-log = logging.getLogger(__name__)
 
+log = logging.getLogger(__name__)
 
 class MySQLModel(Model):
     class Meta:
@@ -293,7 +299,8 @@ def parse_map(map_dict, iteration_num, step, step_location, search_id):
                 'pokemon_id': p['pokemon_data']['pokemon_id'],
                 'latitude': p['latitude'],
                 'longitude': p['longitude'],
-                'disappear_time': d_t
+                'disappear_time': d_t,
+                'aprox_found_datetime': datetime.utcnow()
             }
 
         if iteration_num > 0 or step > 50:

@@ -1,0 +1,8 @@
+api_version: 1
+entrypoint: PokemonWeb/app.py
+runtime: python27
+threadsafe: yes
+manual_scaling:
+  instances: 1
+instance_class: B2
+vm: false
