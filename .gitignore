@@ -4,10 +4,9 @@
 *.db-journal
 *.sass-cache
 config/config.ini
-PokemonGoMap/config/credentials.json
-PokemonGoMap/config/credentialsix.json
-PokemonGoMap/config/credentialsgc.json
+*credentials*
 node_modules/
 venv/
 env
 stepFiles/*.txt
+lib

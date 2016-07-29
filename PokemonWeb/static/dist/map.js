@@ -290,17 +290,6 @@ function initMap() {
   });
 }
 
-function createSearchMarker() {
-  marker = new google.maps.Marker({ //need to keep reference.
-    position: {
-      lat: center_lat,
-      lng: center_lng
-    },
-    map: map,
-    animation: google.maps.Animation.DROP,
-    draggable: true
-  });
-
   var oldLocation = null;
   google.maps.event.addListener(marker, 'dragstart', function() {
     oldLocation = marker.getPosition();

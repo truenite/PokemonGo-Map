@@ -14,3 +14,5 @@ config = {
     'PASSWORD': None,
     'SEARCH_QUEUE_DEPTH': 100
 }
+
+import web
