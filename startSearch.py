@@ -94,7 +94,7 @@ def get_python_command(pending_search):
     return args
 
 log = logging.getLogger("startSearch")
-logLevel = logging.ERROR
+logLevel = logging.WARN
 logging.basicConfig(level=logLevel, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')
 
 if __name__ == "__main__":

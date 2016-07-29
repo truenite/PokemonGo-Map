@@ -9,5 +9,5 @@ config = {
     'GMAPS_KEY': None,
     'REQ_SLEEP': 1,
     'SLEEP_FOR_AFTER_FAILED': 1,
-    'ERRORS_BOFORE_SLEEP': 3
+    'ERRORS_BEFORE_SLEEP': 3
 }

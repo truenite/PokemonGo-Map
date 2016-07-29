@@ -25,16 +25,17 @@ def calculate_lng_degrees(lat):
     return float(lng_gap_meters) / \
         (meters_per_degree * math.cos(math.radians(lat)))
 
+
 def send_map_request(api, position):
     try:
         api.set_position(*position)
         api.get_map_objects(latitude=f2i(position[0]),
-                            longitude=f2i(position[1]),
-                            since_timestamp_ms=TIMESTAMP,
-                            cell_id=get_cellid(position[0], position[1]))
+                                 longitude=f2i(position[1]),
+                                 since_timestamp_ms=TIMESTAMP,
+                                 cell_id=get_cellid(position[0], position[1]))
         return api.call()
     except Exception as e:
-        log.warn("Uncaught exception when downloading map " + str(e))
+        log.warning("Uncaught exception when downloading map " + str(e))
         return False
 
 def get_new_coords(init_loc, distance, bearing):
@@ -95,7 +96,6 @@ def generate_location_steps(initial_loc, step_count):
         ring += 1
 
 
-
 def login(args, position):
     log.info('Attempting login to Pokemon Go.')
     api.set_position(*position)
@@ -109,7 +109,6 @@ def login(args, position):
         attempts=attempts+1
 
     log.info('Login to Pokemon Go successful.')
-
 
 def search(args, i):
     num_steps = args.step_limit
@@ -125,8 +124,6 @@ def search(args, i):
         login(args, position)
 
     for step, step_location in enumerate(generate_location_steps(position, num_steps), 1):
-
-        log.info('Scanning step {:d} of {:d}.'.format(step, total_steps))
         log.debug('Scan location is {:f}, {:f}'.format(step_location[0], step_location[1]))
 
         response_dict = {}
@@ -140,7 +137,7 @@ def search(args, i):
                 except KeyError:
                     log.error('Scan step {:d} failed. Response dictionary key error. Process : {:d}'.format(step, args.search_id))
                     failed_consecutive += 1
-                    if(failed_consecutive >= config['ERRORS_BOFORE_SLEEP']):
+                    if(failed_consecutive >= config['ERRORS_BEFORE_SLEEP']):
                         log.error('Niantic servers under heavy load. Waiting before trying again')
                         time.sleep(config['SLEEP_FOR_AFTER_FAILED'])
                         failed_consecutive = 0
