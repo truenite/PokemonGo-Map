@@ -285,7 +285,7 @@ function initMap() {
     $('#sound-switch').prop('checked', Store.get('playSound'));
 
     var searchBox = new google.maps.places.SearchBox(document.getElementById('next-location'));
-    
+
     searchBox.addListener('places_changed', function() {
       var places = searchBox.getPlaces();
 
@@ -1058,17 +1058,6 @@ function initMap() {
           var baseURL = location.protocol + "//" + location.hostname + (location.port ? ":"+location.port: "");
           lat = position.coords.latitude;
           lon = position.coords.longitude;
-
-          //the search function makes any small movements cause a loop. Need to increase resolution
-          if(getPointDistance(marker.getPosition(), (new google.maps.LatLng(lat, lon))) > 40) //changed to 40 from PR notes, less jitter.
-          {
-            $.post(baseURL + "/next_loc?lat=" + lat + "&lon=" + lon).done(function(){
-              var center = new google.maps.LatLng(lat, lon);
-              map.panTo(center);
-              marker.setPosition(center);
-            });
-          }
-
         });
       }
     }, 1000);

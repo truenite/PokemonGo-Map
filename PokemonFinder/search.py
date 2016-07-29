@@ -103,11 +103,9 @@ def login(args, position):
     attempts = 0
     while not api.login(args.auth_service, args.username, args.password):
         log.info('Failed to login to Pokemon Go. Trying again.')
-        time.sleep(config['REQ_SLEEP'])
         if(attempts >= args.attempts_to_login):
             log.error('Killing process {:d} - Too much login errors'.format(os.getpid()))
-            os._exit()
-        log.error('Login attempts {:d} - waiting to get to {:d} process {:d}'.format(attempts,args.attempts_to_login, os.getpid()))
+            os._exit(1)
         attempts=attempts+1
 
     log.info('Login to Pokemon Go successful.')
@@ -127,38 +125,27 @@ def search(args, i):
         login(args, position)
 
     for step, step_location in enumerate(generate_location_steps(position, num_steps), 1):
+
         log.info('Scanning step {:d} of {:d}.'.format(step, total_steps))
         log.debug('Scan location is {:f}, {:f}'.format(step_location[0], step_location[1]))
 
         response_dict = {}
         failed_consecutive = 0
-        # failed_before_relaunch = 0
         while not response_dict:
             response_dict = send_map_request(api, step_location)
             if (response_dict and any(response_dict["responses"])):
                 try:
                     parse_map(response_dict, i, step, step_location, args.search_id)
-                    # failed_before_relaunch = 0
                     time.sleep(.1)
                 except KeyError:
                     log.error('Scan step {:d} failed. Response dictionary key error. Process : {:d}'.format(step, args.search_id))
                     failed_consecutive += 1
-                    # failed_before_relaunch +=1
-                    # if(failed_before_relaunch>=config['ERRORS_BEFORE_RELAUNCH'])
-                    #     log.error('Killing process {:d} - API consecutive errors'.format(os.getpid()))
-                    #     os._exit()
                     if(failed_consecutive >= config['ERRORS_BOFORE_SLEEP']):
                         log.error('Niantic servers under heavy load. Waiting before trying again')
-                        time.sleep(config['SLEEP_FOR_ATER_FAILED'])
+                        time.sleep(config['SLEEP_FOR_AFTER_FAILED'])
                         failed_consecutive = 0
             else:
-                log.info('Map Download failed. Trying again.')
-                failed_consecutive += 1
-                log.error('Scan step {:d} failed. Response dictionary key error. Process : {:d} - lleva {:d} seguidos'.format(step, args.search_id,failed_consecutive))
-                if(failed_consecutive >= config['REQ_MAX_FAILED']):
-                    log.error('Niantic servers under heavy load. Waiting before trying again')
-                    time.sleep(config['REQ_HEAVY_SLEEP'])
-                    failed_consecutive = 0
+                log.error('Empty response from API, retrying')
 
         log.info('Completed {:5.2f}% of scan.'.format(float(step) / num_steps**2*100))
 

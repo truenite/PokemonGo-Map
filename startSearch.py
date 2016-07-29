@@ -31,16 +31,6 @@ def close_app(signal, frame):
             rp.terminate()
     os._exit(0)
 
-# def start_web():
-#     args = Arguments('agarciapokemon','agarciapokemon',47.6191155,-122.3410584,9,0,False,True)
-#     if (socket.gethostname().startswith('instance')==False):
-#         args.port=5000
-#     process = multiprocessing.Process(name='0', target=start_web_server, args=(args,))
-#     process.start()
-#     running_processes.append(process)
-#     log.error("Starting web '%s' - '%s'", process.name, process.pid)
-#     sys.stdout.flush()
-
 def check_for_dead_processes():
     global running_processes
     for rp in running_processes:
@@ -116,7 +106,6 @@ if __name__ == "__main__":
     logging.getLogger("models").setLevel(logLevel)
 
     signal.signal(signal.SIGINT, close_app)
-    # start_web()
     while(True):
         pending_searches = Search_Location.get_not_running()
         for ps in pending_searches:
