@@ -14,6 +14,8 @@ libraries:
   version: "2.6"
 - name: markupsafe
   version: "0.15"
+- name: MySQLdb
+  version: "latest"
 
 handlers:
 - url: /favicon.ico
@@ -27,7 +29,7 @@ handlers:
   script: lib.gae_mini_profiler.main.application
 
 - url: /static
-  static_dir: application/static
+  static_dir: PokemonWeb/static
 
 - url: .*
-  script: run.PokemonWeb.app.web
+  script: run.PokemonWeb.web.app

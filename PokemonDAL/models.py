@@ -15,6 +15,7 @@ from peewee import Model, MySQLDatabase, InsertQuery, IntegerField,\
 from datetime import datetime
 from datetime import timedelta
 from base64 import b64encode
+import pymysql
 from pymysql import MySQLError
 
 config = {
@@ -31,18 +32,17 @@ def load_mysql_credentials(filepath):
 
 credentials = load_mysql_credentials(os.path.dirname(os.path.realpath(__file__)))
 
-env = os.getenv('SERVER_SOFTWARE')
-if (env and env.startswith('Google App Engine/')):
-    db = MySQLDatabase(credentials['mysql_db'], unix_socket=credentials['mysql_socket'],
-    user=credentials['mysql_user'], passwd=credentials['mysql_pass'])
-
+if not credentials or not (credentials['mysql_host'] and  credentials['mysql_port'] and  
+credentials['mysql_user'] and credentials['mysql_pass']  and credentials['mysql_db'] and 
+credentials['mysql_prod_user'] and credentials['mysql_socket'] and credentials['mysql_prod_pass']):
+    raise MySQLError("No MySQl credentials in credentials.json file!" + credentials)
 else:
-    if not (credentials['mysql_host'] and  credentials['mysql_port'] and  credentials['mysql_user']
-    and  credentials['mysql_pass'] and  credentials['mysql_pass'] and credentials['mysql_db']):
-        raise MySQLError("No MySQl credentials in credentials.json file!")
-    db = MySQLDatabase(credentials['mysql_db'], host=credentials['mysql_host'],
-                   port=credentials['mysql_port'], user=credentials['mysql_user'],
-                   passwd=credentials['mysql_pass'])
+    env = os.getenv('SERVER_SOFTWARE')
+    if (env and env.startswith('Google App Eng')):
+        db = MySQLDatabase('pokemongo',unix_socket='/cloudsql/wired-victor-138322:gcpokemongo',user='root',passwd='73CGWRc6FqNj2K')
+    else:
+        db = MySQLDatabase(credentials['mysql_db'], host=credentials['mysql_host'],
+        port=credentials['mysql_port'], user=credentials['mysql_user'], passwd=credentials['mysql_pass'])
 
 log = logging.getLogger(__name__)
 

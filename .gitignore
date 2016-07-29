@@ -3,10 +3,8 @@
 *.db
 *.db-journal
 *.sass-cache
-config/config.ini
-*credentials*
+PokemonWeb/credentials.json
 node_modules/
 venv/
 env
-stepFiles/*.txt
 lib
