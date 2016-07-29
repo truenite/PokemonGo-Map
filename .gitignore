@@ -3,7 +3,7 @@
 *.db
 *.db-journal
 *.sass-cache
-PokemonWeb/credentials.json
+PokemonDAL/credentials.json
 node_modules/
 venv/
 env
