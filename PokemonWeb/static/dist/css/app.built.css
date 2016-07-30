@@ -1735,15 +1735,15 @@ body {
     padding: 0; }
     #header > h1 a {
       font-size: 1.25em; }
-    #header > h5 {
-      color: #ffffff;
-      display: inline-block;
-      height: inherit;
-      line-height: inherit;
-      margin: 0;
-      padding: 0; }
+  #header > h5 {
+    color: #ffffff;
+    display: inline-block;
+    height: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0; }
     #header > h5 a {
-      font-size: 0.8em; }
+      font-size: .9em; }
   #header > a {
     -moz-transition: color 0.2s ease-in-out;
     -webkit-transition: color 0.2s ease-in-out;
@@ -1785,20 +1785,13 @@ body {
 
 @media screen and (max-width: 980px) {
   body {
-    padding-top: 44px;
-  }
-#header {
-  height: 44px;
-}
-#header > h1 {
-  left: 1em;
-}
-#header > h1 a {
-font-size: 1em; }
-#header > h5 {
-left: 1em; }
-#header > h5 a {
-font-size: 1em; } }
+    padding-top: 44px; }
+  #header {
+    height: 44px; }
+    #header > h1 {
+      left: 1em; }
+      #header > h1 a {
+        font-size: 1em; } }
 
 @media screen and (max-width: 480px) {
   #header {

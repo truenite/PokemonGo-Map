@@ -26,6 +26,7 @@ Author: tjado <https://github.com/tejado>
 import logging
 import re
 import requests
+import os
 
 from utilities import f2i, h2f
 
@@ -164,7 +165,7 @@ class PGoApi:
             self._api_endpoint = ('https://{}/rpc'.format(response['api_url']))
             self.log.debug('Setting API endpoint to: %s', self._api_endpoint)
         else:
-            self.log.error('Login failed - unexpected server response!')
+            self.log.error('Login failed - unexpected server response! - Process : {:d}'.format(os.getpid()))
             return False
 
         if 'auth_ticket' in response:

@@ -5,6 +5,7 @@
 *.sass-cache
 PokemonDAL/credentials.json
 node_modules/
+PokemonWeb/certificate/
 venv/
 env
 lib

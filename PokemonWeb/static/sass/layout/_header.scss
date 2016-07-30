@@ -29,6 +29,18 @@
 				font-size: 1.25em;
 			}
 		}
+		> h5 {
+			color: _palette(accent2, fg-bold);
+			display: inline-block;
+			height: inherit;
+			line-height: inherit;
+			margin: 0;
+			padding: 0;
+
+			a {
+				font-size: .9em;
+			}
+		}
 
 		> a {
 			@include vendor('transition', 'color #{_duration(transition)} ease-in-out');

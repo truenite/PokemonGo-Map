@@ -133,19 +133,16 @@ def search(args, i):
             if (response_dict and any(response_dict["responses"])):
                 try:
                     parse_map(response_dict, i, step, step_location, args.search_id)
-                    time.sleep(.1)
+                    time.sleep(.205)
                 except KeyError:
-                    log.error('Scan step {:d} failed. Response dictionary key error. Process : {:d}'.format(step, args.search_id))
+                    log.error('Scan step {:d} failed. Response dictionary key error. - Process : {:d} - SearchId {:d}'.format(os.getpid(), args.search_id))
                     failed_consecutive += 1
                     if(failed_consecutive >= config['ERRORS_BEFORE_SLEEP']):
                         log.error('Niantic servers under heavy load. Waiting before trying again')
                         time.sleep(config['SLEEP_FOR_AFTER_FAILED'])
                         failed_consecutive = 0
             else:
-                log.error('Empty response from API, retrying')
-
-        log.info('Completed {:5.2f}% of scan.'.format(float(step) / num_steps**2*100))
-
+                log.error('Empty response from API, retrying. - Process : {:d} - SearchId {:d}'.format(os.getpid(), args.search_id))
 
 def search_loop(args,parseLocationFromArg = False):
     i = 0

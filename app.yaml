@@ -9,6 +9,13 @@ automatic_scaling:
   min_pending_latency: automatic  # default value
   max_pending_latency: 30ms
 
+skip_files:
+- ^(.*/)?#.*#$
+- ^(.*/)?.*~$
+- ^(.*/)?.*\.py[co]$
+- ^(.*/)?.*/RCS/.*$
+- ^(.*/)?\..*$
+
 libraries:
 - name: jinja2
   version: "2.6"
@@ -21,15 +28,20 @@ handlers:
 - url: /favicon.ico
   static_files: static/appicons/favicon.ico
   upload: static/appicons/favicon.ico
+  secure: always
 
 - url: /gae_mini_profiler/static
   static_dir: lib/gae_mini_profiler/static
+  secure: always
 
 - url: /gae_mini_profiler/.*
   script: lib.gae_mini_profiler.main.application
+  secure: always
 
 - url: /static
   static_dir: PokemonWeb/static
+  secure: always
 
 - url: .*
   script: run.PokemonWeb.web.app
+  secure: always
