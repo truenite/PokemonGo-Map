@@ -263,6 +263,7 @@ class Search_Location(MySQLModel):
     longitude = DoubleField()
     account_id = IntegerField()
     running = BooleanField()
+    pid = IntegerField()
 
     @classmethod
     def get_not_running(cls):

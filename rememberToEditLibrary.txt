@@ -1,3 +1,0 @@
-Remove check_output
-nano lib/future/backports/misc.py
-nano lib/future/backports/__init__.py

@@ -9,3 +9,6 @@ PokemonWeb/certificate/
 venv/
 env
 lib
+PokemonWeb/node_modules
+PokemonWeb/Gruntfile.js
+PokemonWeb/package.json

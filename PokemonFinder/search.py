@@ -133,7 +133,7 @@ def search(args, i):
             if (response_dict and any(response_dict["responses"])):
                 try:
                     parse_map(response_dict, i, step, step_location, args.search_id)
-                    time.sleep(.205)
+                    time.sleep(config['WAIT_BETWEEN_CALLS'])
                 except KeyError:
                     log.error('Scan step {:d} failed. Response dictionary key error. - Process : {:d} - SearchId {:d}'.format(os.getpid(), args.search_id))
                     failed_consecutive += 1
@@ -155,6 +155,7 @@ def search_loop(args,parseLocationFromArg = False):
 
     search_location = Search_Location.get(Search_Location.search_location_id == args.search_id)
     search_location.running = 1
+    search_location.pid = os.getpid()
     search_location.save()
 
     try:

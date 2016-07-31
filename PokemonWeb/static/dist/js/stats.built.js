@@ -9,7 +9,6 @@ function countMarkers() {
   var arenaTotal = 0;
   var pkmnCount = [];
   var pkmnTotal = 0;
-  var pokestopCount = [];
   var pokestopTotal = 0;
   if (Store.get('showPokemon')) {
     $.each(map_data.pokemons, function (key, value) {
@@ -68,32 +67,8 @@ function countMarkers() {
   }
   if (Store.get('showPokestops')) {
     $.each(map_data.pokestops, function (key, value) {
-      var pokestopLured = false;
-      if (map_data.pokestops[key]['lure_expiration'] != null && map_data.pokestops[key]['lure_expiration'] > 0) {
-        if (pokestopCount[1] == 0 || pokestopCount[1] == null) {
-          pokestopCount[1] = 1;
-        } else {
-          pokestopCount[1] += 1;
-        }
-      } else {
-        if (pokestopCount[0] == 0 || pokestopCount[0] == null) {
-          pokestopCount[0] = 1;
-        } else {
-          pokestopCount[0] += 1;
-        }
-      }
       pokestopTotal++;
-      var pokestopListString = "<table><th>Icon</th><th>Status</th><th>Count</th><th>%</th><tr><td></td><td>Total</td><td>" + pokestopTotal + "</td></tr>";
-      for (var i = 0; i < pokestopCount.length; i++) {
-        if (pokestopCount[i] > 0) {
-          if (i == 0) {
-            pokestopListString += "<tr><td><img src=\"/static/forts/Pstop.png\" /></td><td>" + "Not Lured" + "</td><td>" + pokestopCount[i] + "</td><td>" + Math.round(pokestopCount[i] * 100 / pokestopTotal * 10) / 10 + "%</td></tr>";
-          } else if (i == 1) {
-            pokestopListString += "<tr><td><img src=\"/static/forts/PstopLured.png\" /></td><td>" + "Lured" + "</td><td>" + pokestopCount[i] + "</td><td>" + Math.round(pokestopCount[i] * 100 / pokestopTotal * 10) / 10 + "%</td></tr>";
-          }
-        }
-      }
-      pokestopListString += "</table>";
+      var pokestopListString = "<table><th>Icon</th><th>Status</th><th>Count</th><tr><td><img src=\"/static/forts/PstopLured.png\" /></td><td>Total</td><td>" + pokestopTotal + "</td></tr></table>";
       document.getElementById("pokestopList").innerHTML = pokestopListString;
     });
   } else {

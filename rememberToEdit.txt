@@ -1,0 +1,68 @@
+Comment check_output
+nano lib/future/backports/misc.py
+nano lib/future/backports/__init__.py
+
+
+static/
+
+js/map.js
+
+------------------------------
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    maxZoom: 16,
+    minZoom: 12,
+    zoom: 15,
+    fullscreenControl: true,
+    streetViewControl: false,
+    mapTypeControl: false,
+    mapTypeControlOptions: {
+      style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+      position: google.maps.ControlPosition.RIGHT_TOP,
+      mapTypeIds: [
+        google.maps.MapTypeId.ROADMAP,
+        google.maps.MapTypeId.SATELLITE,
+        'nolabels_style',
+        'dark_style',
+        'style_light2',
+        'style_pgo',
+        'dark_style_nl',
+        'style_light2_nl',
+        'style_pgo_nl'
+      ]
+    }
+  });
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      map.setCenter(pos);
+    }, function() {
+      handleLocationError(true, infoWindow, map.getCenter());
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleLocationError(false, infoWindow, map.getCenter());
+  }
+
+  function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+    infoWindow.setPosition(pos);
+    infoWindow.setContent(browserHasGeolocation ?
+      'Error: The Geolocation service failed.' :
+      'Error: Your browser doesn\'t support geolocation.');
+    }
+
+    var style_NoLabels
+------------------------------
+
+------------------------------
+  function createSearchMarker() {
+    marker = new google.maps.Marker({ //need to keep reference.
+      map: map
+    });
+    return marker;
+  }
+------------------------------

@@ -19,30 +19,36 @@ from importlib import import_module
 
 running_threads = []
 running_processes = []
+stoping=0
 
 def close_app(signal, frame):
     global running_processes
+    stoping=1
     log.info('Terminating.')
-    query = Search_Location.update(running=0)
+    query = Search_Location.update(running=0,pid=-1)
     query.execute()
-    for rp in running_processes:
-        if(rp.is_alive() == True):
-            running_processes.remove(rp)
-            rp.terminate()
+    for x in range(0, 1):
+        for rp in running_processes:
+            if(rp.is_alive() == True):
+                running_processes.remove(rp)
+                rp.terminate()
+            time.sleep(10)
     os._exit(0)
 
 def check_for_dead_processes():
     global running_processes
-    for rp in running_processes:
-        if(rp.is_alive() == False):
-            if(rp.name=="0"):
-                start_web()
-            else:
-                log.info("Proceso {:d} con searchId {:s} estaba muerto".format(rp.pid,rp.name))
-                s = Search_Location.get(Search_Location.search_location_id == rp.name)
-                s.running=0
-                s.save()
-                running_processes.remove(rp)
+    if stoping==0:
+        for rp in running_processes:
+            if(rp.is_alive() == False):
+                if(rp.name=="0"):
+                    start_web()
+                else:
+                    log.debug("Proceso {:d} con searchId {:s} estaba muerto".format(rp.pid,rp.name))
+                    s = Search_Location.get(Search_Location.search_location_id == rp.name)
+                    s.running=0
+                    s.pid = -1
+                    s.save()
+                    running_processes.remove(rp)
 
 def add_and_start_process(args):
     global running_processes
@@ -94,7 +100,7 @@ def get_python_command(pending_search):
     return args
 
 log = logging.getLogger("startSearch")
-logLevel = logging.WARN
+logLevel = logging.ERROR
 logging.basicConfig(level=logLevel, format='%(asctime)s [%(module)11s] [%(levelname)7s] %(message)s')
 
 if __name__ == "__main__":
