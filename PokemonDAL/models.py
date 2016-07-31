@@ -32,8 +32,8 @@ def load_mysql_credentials(filepath):
 
 credentials = load_mysql_credentials(os.path.dirname(os.path.realpath(__file__)))
 
-if not credentials or not (credentials['mysql_host'] and  credentials['mysql_port'] and  
-credentials['mysql_user'] and credentials['mysql_pass']  and credentials['mysql_db'] and 
+if not credentials or not (credentials['mysql_host'] and  credentials['mysql_port'] and
+credentials['mysql_user'] and credentials['mysql_pass']  and credentials['mysql_db'] and
 credentials['mysql_prod_user'] and credentials['mysql_socket'] and credentials['mysql_prod_pass']):
     raise MySQLError("No MySQl credentials in credentials.json file!" + credentials)
 else:
@@ -290,9 +290,11 @@ def parse_map(map_dict, iteration_num, step, step_location, search_id):
     cells = map_dict['responses']['GET_MAP_OBJECTS']['map_cells']
     for cell in cells:
         for p in cell.get('wild_pokemons', []):
-            d_t = datetime.utcfromtimestamp(
-                (p['last_modified_timestamp_ms'] +
-                 p['time_till_hidden_ms']) / 1000.0)
+            if p['time_till_hidden_ms'] < 0:
+                correction = (math.floor(math.fabs(p['time_till_hidden_ms']) / 3600000) + 1) * 3600000
+                d_t = datetime.utcfromtimestamp((p['last_modified_timestamp_ms'] + p['time_till_hidden_ms'] + correction) / 1000.0)
+            else:
+                d_t = datetime.utcfromtimestamp((p['last_modified_timestamp_ms'] + p['time_till_hidden_ms']) / 1000.0)
             pokemons[p['encounter_id']] = {
                 'encounter_id': b64encode(str(p['encounter_id'])),
                 'spawnpoint_id': p['spawnpoint_id'],
